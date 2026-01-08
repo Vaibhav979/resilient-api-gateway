@@ -26,3 +26,11 @@ Clients → API Gateway → (Redis / Downstream Service / DB)
 2. Rate limit check is performed
 3. Request is either rejected or processed
 4. Response returned to client
+
+### Error Responsibility & Failure Signaling
+
+- This service explicitly differentiates between client-side failures (4xx) and server-side failures (5xx) to preserve observability correctness and error budget integrity.
+
+- Client errors (e.g., invalid requests, unsupported endpoints, rate limit violations) are treated as contract violations and returned as 4xx responses. These failures do not indicate service unreliability and do not consume error budget.
+
+- Server errors (5xx) represent failures in handling valid requests and are returned only for unexpected internal conditions or dependency failures. The system prefers fast failure over retries in these cases to avoid cascading failures and thread exhaustion.
