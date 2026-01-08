@@ -34,3 +34,8 @@ Clients → API Gateway → (Redis / Downstream Service / DB)
 - Client errors (e.g., invalid requests, unsupported endpoints, rate limit violations) are treated as contract violations and returned as 4xx responses. These failures do not indicate service unreliability and do not consume error budget.
 
 - Server errors (5xx) represent failures in handling valid requests and are returned only for unexpected internal conditions or dependency failures. The system prefers fast failure over retries in these cases to avoid cascading failures and thread exhaustion.
+
+### Containerization
+
+The API Gateway is containerized using Docker to ensure
+reproducible runtime environments and predictable deployment behavior.
