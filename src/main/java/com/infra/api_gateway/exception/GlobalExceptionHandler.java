@@ -11,24 +11,42 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 4xx: Client Errors
-    @ExceptionHandler(ClientException.class)
-    public ResponseEntity<Map<String, Object>> handleClientException(ClientException ex) {
-        Map<String, Object> errorResponse = Map.of(
-                "error", "Bad Request",
-                "timestamp", Instant.now(),
-                "message", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    // 503 — Infra down
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalStateException(IllegalStateException ex) {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(
+                Map.of(
+                        "error", "Service Unavailable",
+                        "message", ex.getMessage(),
+                        "timestamp", Instant.now().toString()));
     }
 
-    // 5xx: Server Errors
+    // 4xx — Client mistakes
+    @ExceptionHandler(ClientException.class)
+    public ResponseEntity<Map<String, Object>> handleClientException(ClientException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                Map.of(
+                        "error", "Bad Request",
+                        "message", ex.getMessage(),
+                        "timestamp", Instant.now().toString()));
+    }
+
+    // 5xx — Everything else
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleServerException(Exception ex) {
-        Map<String, Object> errorResponse = Map.of(
-                "error", "Internal Server Error",
-                "message", "Unexpected failure occurred",
-                "timestamp", Instant.now().toString());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                Map.of(
+                        "error", "Internal Server Error",
+                        "message", "Unexpected failure occurred",
+                        "timestamp", Instant.now().toString()));
+    }
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    // 429 Too many requests exception
+    public ResponseEntity<Map<String, Object>> handleRateLimit(RateLimitExceededException ex) {
+        return ResponseEntity.status(429).body(
+                Map.of(
+                        "error", "Too Many Requests",
+                        "message", ex.getMessage(),
+                        "timestamp", Instant.now().toString()));
     }
 }

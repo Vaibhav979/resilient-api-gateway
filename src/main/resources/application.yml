@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: api_gateway
+
+  data:
+    redis:
+      host: redis
+      port: 6379
+      database: 0
+      timeout: 2s
+      client-type: lettuce

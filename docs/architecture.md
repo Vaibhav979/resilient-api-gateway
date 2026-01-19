@@ -1,7 +1,6 @@
 ## Problem Statement
 
-Build a resilient API gateway that protects downstream services
-from traffic spikes and partial failures.
+Build a resilient API gateway that protects downstream services from traffic spikes and partial failures.
 
 ## System Goals
 
@@ -27,7 +26,7 @@ Clients → API Gateway → (Redis / Downstream Service / DB)
 3. Request is either rejected or processed
 4. Response returned to client
 
-### Error Responsibility & Failure Signaling
+## Error Responsibility & Failure Signaling
 
 - This service explicitly differentiates between client-side failures (4xx) and server-side failures (5xx) to preserve observability correctness and error budget integrity.
 
@@ -35,7 +34,6 @@ Clients → API Gateway → (Redis / Downstream Service / DB)
 
 - Server errors (5xx) represent failures in handling valid requests and are returned only for unexpected internal conditions or dependency failures. The system prefers fast failure over retries in these cases to avoid cascading failures and thread exhaustion.
 
-### Containerization
+## Containerization
 
-The API Gateway is containerized using Docker to ensure
-reproducible runtime environments and predictable deployment behavior.
+The API Gateway is containerized using Docker to ensure reproducible runtime environments and predictable deployment behavior.
