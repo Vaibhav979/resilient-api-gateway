@@ -42,6 +42,7 @@ public class GlobalExceptionHandler {
     }
 
     // 429 Too many requests exception
+    @ExceptionHandler(RateLimitExceededException.class)
     public ResponseEntity<Map<String, Object>> handleRateLimit(RateLimitExceededException ex) {
         return ResponseEntity.status(429).body(
                 Map.of(
