@@ -7,7 +7,7 @@ import java.time.Duration;
 
 @Service
 public class RateLimiterService {
-    
+
     private static final int MAX_REQUESTS = 10;
     private static final Duration WINDOW = Duration.ofSeconds(10);
 
@@ -19,11 +19,16 @@ public class RateLimiterService {
 
     public boolean isAllowed(String clientId) {
         String key = "rate_limit:" + clientId;
-        Long count = redisTemplate.opsForValue().increment(key);
+        try {
+            Long count = redisTemplate.opsForValue().increment(key);
 
-        if (count != null && count == 1) {
-            redisTemplate.expire(key, WINDOW);
+            if (count != null && count == 1) {
+                redisTemplate.expire(key, WINDOW);
+            }
+            return count != null && count <= MAX_REQUESTS;
+        } catch (Exception e) {
+            // In case of Redis failure, allow the request (fail-open)
+            return true;
         }
-        return count != null && count <= MAX_REQUESTS;
     }
 }

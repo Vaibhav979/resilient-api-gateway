@@ -9,3 +9,4 @@ spring:
       database: 0
       timeout: 2s
       client-type: lettuce
+      connect-timeout: 2s

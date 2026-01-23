@@ -20,21 +20,21 @@ import java.util.Map;
 public class ApiController {
 
     public final DataService dataService;
-    private final RedisHealthChecker redisHealthChecker;
+    // private final RedisHealthChecker redisHealthChecker;
     private final RateLimiterService rateLimiter;
 
     public ApiController(DataService dataService, RedisHealthChecker redisHealthChecker,
             RateLimiterService rateLimiter) {
         this.dataService = dataService;
-        this.redisHealthChecker = redisHealthChecker;
+        // this.redisHealthChecker = redisHealthChecker;
         this.rateLimiter = rateLimiter;
     }
 
     @GetMapping("/data")
     public Map<String, Object> getData(@RequestParam(required = false) String mode, HttpServletRequest request) {
-        if (!redisHealthChecker.isRedisUp()) {
-            throw new IllegalStateException("Redis is down");
-        }
+        // if (!redisHealthChecker.isRedisUp()) { removing hard dependency on redis
+        // throw new IllegalStateException("Redis is down");
+        // }
 
         String clientIp = request.getRemoteAddr();
         if (!rateLimiter.isAllowed(clientIp)) {

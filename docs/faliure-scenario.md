@@ -12,7 +12,7 @@
 **Rationale:**
 These errors indicate incorrect client behavior and do not represent system unreliability.
 
-## Scenario: Redis Unavailable
+<!-- ## Scenario: Redis Unavailable
 
 **Trigger**
 
@@ -30,19 +30,43 @@ These errors indicate incorrect client behavior and do not represent system unre
 **Reasoning**
 
 - Prevent thread exhaustion
-- Make dependency failure explicit
+- Make dependency failure explicit -->
 
 ### Scenario: Rate Limit Exceeded
 
 **Trigger**
+
 - Client exceeds request quota within time window
 
 **Expected Behavior**
+
 - API returns 429 Too Many Requests
 
 **User Impact**
+
 - Client must retry later
 - Other users unaffected
 
 **Reasoning**
+
 - Protect system from overload
+
+### Scenario: Redis Slow or Unavailable
+
+**Trigger**
+
+- Redis latency exceeds timeout or connection fails
+
+**Expected Behavior**
+
+- Rate limiting bypassed
+- Requests continue to be served
+
+**User Impact**
+
+- No immediate outage
+- Potential performance degradation under heavy load
+
+**Reasoning**
+
+- Preserve availability over strict enforcement
