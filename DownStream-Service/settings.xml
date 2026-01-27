@@ -1,0 +1,31 @@
+<settings>
+
+  <mirrors>
+    <mirror>
+      <id>central</id>
+      <mirrorOf>central</mirrorOf>
+      <url>https://repo1.maven.org/maven2</url>
+    </mirror>
+  </mirrors>
+
+  <profiles>
+    <profile>
+      <id>stable</id>
+
+      <properties>
+        <java.net.preferIPv4Stack>true</java.net.preferIPv4Stack>
+
+        <!-- Increase timeouts -->
+        <maven.wagon.httpconnectionManager.ttlSeconds>120</maven.wagon.httpconnectionManager.ttlSeconds>
+        <maven.wagon.http.retryHandler.count>5</maven.wagon.http.retryHandler.count>
+        <maven.wagon.http.pool>false</maven.wagon.http.pool>
+      </properties>
+
+    </profile>
+  </profiles>
+
+  <activeProfiles>
+    <activeProfile>stable</activeProfile>
+  </activeProfiles>
+
+</settings>

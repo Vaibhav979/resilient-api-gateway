@@ -37,3 +37,8 @@ Clients → API Gateway → (Redis / Downstream Service / DB)
 ## Containerization
 
 The API Gateway is containerized using Docker to ensure reproducible runtime environments and predictable deployment behavior.
+
+### Downstream Service
+
+A mock downstream service is used to simulate latency and failure scenarios.
+It allows controlled injection of delays and errors to test gateway resilience under partial failure conditions.

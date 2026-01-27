@@ -1,5 +1,9 @@
 version: "3.9"
 
+volumes:
+  maven-repo:
+
+
 services:
 
   redis:
@@ -8,13 +12,32 @@ services:
     ports:
       - "6379:6379"
     restart: unless-stopped
+
+
   api-gateway:
-    build: .
+    build: ./api_gateway
     container_name: api_gateway
     ports:
       - "8080:8080"
+
     volumes:
       - ./application.yml:/app/application.yml
+
+      - maven-repo:/root/.m2
+
     depends_on:
-      - redis    
+      - redis
+
+    restart: unless-stopped
+
+
+  downstream-service:
+    build: ./DownStream-Service
+    container_name: downstream_service
+    ports:
+      - "8081:8080"
+
+    volumes:
+      - maven-repo:/root/.m2
+
     restart: unless-stopped

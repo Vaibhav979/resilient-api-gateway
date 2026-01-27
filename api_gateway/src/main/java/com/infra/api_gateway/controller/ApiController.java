@@ -12,6 +12,10 @@ import com.infra.api_gateway.service.RateLimiterService;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.web.bind.annotation.GetMapping;
+
+// import static org.junit.jupiter.api.Assertions.fail;
+import com.infra.api_gateway.clients.*;
+
 import java.util.Map;
 
 @RestController
@@ -20,26 +24,26 @@ import java.util.Map;
 public class ApiController {
 
     public final DataService dataService;
-    // private final RedisHealthChecker redisHealthChecker;
     private final RateLimiterService rateLimiter;
+    private final DownStreamClient downstreamClient;
 
     public ApiController(DataService dataService, RedisHealthChecker redisHealthChecker,
-            RateLimiterService rateLimiter) {
+            RateLimiterService rateLimiter, DownStreamClient downstreamClient) {
         this.dataService = dataService;
-        // this.redisHealthChecker = redisHealthChecker;
         this.rateLimiter = rateLimiter;
+        this.downstreamClient = downstreamClient;
     }
 
     @GetMapping("/data")
-    public Map<String, Object> getData(@RequestParam(required = false) String mode, HttpServletRequest request) {
-        // if (!redisHealthChecker.isRedisUp()) { removing hard dependency on redis
-        // throw new IllegalStateException("Redis is down");
-        // }
+    public Map<String, Object> getData(HttpServletRequest request,
+            @RequestParam(required = false) Long delayMs,
+            @RequestParam(required = false) Boolean fail) {
 
         String clientIp = request.getRemoteAddr();
         if (!rateLimiter.isAllowed(clientIp)) {
             throw new RateLimitExceededException("Rate limit exceeded. Please try again later.");
         }
-        return dataService.getData(mode);
+
+        return downstreamClient.getData(delayMs, fail);
     }
 }
