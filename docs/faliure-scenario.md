@@ -90,3 +90,16 @@ These errors indicate incorrect client behavior and do not represent system unre
 **Reasoning**
 
 - Protect threads and queues
+
+## Scenario: Transient Downstream Failure
+
+**Trigger**
+- Temporary network or service glitch
+
+**Behavior**
+- Limited retries with backoff
+- Circuit breaker monitors failures
+
+**Reasoning**
+- Recover from short outages
+- Avoid traffic amplification

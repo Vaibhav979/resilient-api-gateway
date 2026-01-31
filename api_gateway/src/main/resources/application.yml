@@ -20,3 +20,14 @@ resilience4j:
         sliding-window-size: 10
         wait-duration-in-open-state: 10s
         permitted-number-of-calls-in-half-open-state: 2
+
+  retry:
+    instances:
+      downstreamRetry:
+        max-attempts: 3
+        wait-duration: 500ms
+        enable-exponential-backoff: true
+        exponential-backoff-multiplier: 2
+        retry-exceptions:
+          - java.io.IOException
+          - org.springframework.web.client.ResourceAccessException
