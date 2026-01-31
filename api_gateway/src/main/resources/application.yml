@@ -10,3 +10,13 @@ spring:
       timeout: 2s
       client-type: lettuce
       connect-timeout: 2s
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      downstreamService:
+        failure-rate-threshold: 50
+        minimum-number-of-calls: 5
+        sliding-window-size: 10
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 2

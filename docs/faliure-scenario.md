@@ -32,7 +32,7 @@ These errors indicate incorrect client behavior and do not represent system unre
 - Prevent thread exhaustion
 - Make dependency failure explicit -->
 
-### Scenario: Rate Limit Exceeded
+## Scenario: Rate Limit Exceeded
 
 **Trigger**
 
@@ -51,7 +51,7 @@ These errors indicate incorrect client behavior and do not represent system unre
 
 - Protect system from overload
 
-### Scenario: Redis Slow or Unavailable
+## Scenario: Redis Slow or Unavailable
 
 **Trigger**
 
@@ -70,3 +70,23 @@ These errors indicate incorrect client behavior and do not represent system unre
 **Reasoning**
 
 - Preserve availability over strict enforcement
+
+## Scenario: Downstream Repeated Failures
+
+**Trigger**
+
+- Failure rate exceeds threshold
+
+**Expected Behavior**
+
+- Circuit breaker opens
+- Downstream calls blocked
+
+**User Impact**
+
+- Fast failures
+- No cascading latency
+
+**Reasoning**
+
+- Protect threads and queues

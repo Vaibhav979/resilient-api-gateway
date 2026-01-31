@@ -35,3 +35,14 @@
 
 - Short Redis timeouts
 - Monitoring Redis health
+
+### Circuit Breaker Strategy
+
+**Chosen**
+
+- Resilience4j state-based breaker
+
+**Reasoning**
+
+- Prevents repeated calls to unhealthy dependency
+- Enables fast recovery
