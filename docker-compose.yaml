@@ -13,6 +13,8 @@ services:
 
 
   api-gateway:
+    depends_on:
+      - redis
     build: ./api_gateway
     container_name: api_gateway
     ports:
@@ -22,9 +24,6 @@ services:
       - ./application.yml:/app/application.yml
 
       - maven-repo:/root/.m2
-
-    depends_on:
-      - redis
 
     restart: unless-stopped
 

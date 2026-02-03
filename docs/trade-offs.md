@@ -46,3 +46,19 @@
 
 - Prevents repeated calls to unhealthy dependency
 - Enables fast recovery
+
+### Caching Strategy
+
+**Chosen**
+
+- Cache-aside with Redis
+
+**TTL**
+
+- 30 seconds
+
+**Reasoning**
+
+- Reduce downstream load
+- Improve tail latency
+- Accept short-lived staleness
