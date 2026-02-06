@@ -9,6 +9,7 @@ import com.infra.api_gateway.exception.RateLimitExceededException;
 import com.infra.api_gateway.service.DataService;
 import com.infra.api_gateway.service.RateLimiterService;
 
+import io.micrometer.core.instrument.Counter;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,18 +27,21 @@ public class ApiController {
     public final DataService dataService;
     private final RateLimiterService rateLimiter;
     private final DownStreamClient downstreamClient;
+    private final Counter requestCounter;
 
     public ApiController(DataService dataService, RedisHealthChecker redisHealthChecker,
-            RateLimiterService rateLimiter, DownStreamClient downstreamClient) {
+            RateLimiterService rateLimiter, DownStreamClient downstreamClient, Counter requestCounter) {
         this.dataService = dataService;
         this.rateLimiter = rateLimiter;
         this.downstreamClient = downstreamClient;
+        this.requestCounter = requestCounter;
     }
 
     @GetMapping("/data")
     public Map<String, Object> getData(HttpServletRequest request,
             @RequestParam(required = false) Long delayMs,
             @RequestParam(required = false) Boolean fail) {
+        requestCounter.increment();
 
         String clientIp = request.getRemoteAddr();
         if (!rateLimiter.isAllowed(clientIp)) {
