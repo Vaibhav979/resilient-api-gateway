@@ -14,7 +14,10 @@ services:
 
   api-gateway:
     depends_on:
-      - redis
+    - redis
+    - downstream-service
+    - postgres
+    
     build: ./api_gateway
     container_name: api_gateway
     ports:
@@ -38,3 +41,15 @@ services:
       - maven-repo:/root/.m2
 
     restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      POSTGRES_DB: gatewaydb
+      POSTGRES_USER: gateway
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+

@@ -7,19 +7,48 @@ spring:
       host: redis
       port: 6379
       database: 0
-      timeout: 2s
+      timeout: 500ms
       client-type: lettuce
-      connect-timeout: 2s
+      connect-timeout: 500ms
+
+  datasource:
+    url: jdbc:postgresql://postgres:5432/gatewaydb
+    username: gateway
+    password: secret
+    hikari:
+      connection-timeout: 500
+      maximum-pool-size: 2
+      minimum-idle: 1
+      idle-timeout: 300000
+      max-lifetime: 120000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
 
 resilience4j:
   circuitbreaker:
     instances:
+      redis:
+        failure-rate-threshold: 1
+        wait-duration-in-open-state: 5s
+        sliding-window-size: 2
+        minimum-number-of-calls: 1
+        permitted-number-of-calls-in-half-open-state: 1
+        automatic-transition-from-open-to-half-open-enabled: true
       downstreamService:
         failure-rate-threshold: 50
         minimum-number-of-calls: 5
         sliding-window-size: 10
         wait-duration-in-open-state: 10s
         permitted-number-of-calls-in-half-open-state: 2
+      database:
+        failure-rate-threshold: 1
+        wait-duration-in-open-state: 5s
+        sliding-window-size: 2
+        minimum-number-of-calls: 1
+        permitted-number-of-calls-in-half-open-state: 1
+        automatic-transition-from-open-to-half-open-enabled: true
 
   retry:
     instances:

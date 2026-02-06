@@ -62,3 +62,19 @@
 - Reduce downstream load
 - Improve tail latency
 - Accept short-lived staleness
+
+### Database Fallback
+
+**Chosen**
+
+- Redis → PostgreSQL → Downstream
+
+**Reasoning**
+
+- Preserve availability
+- Reduce blast radius
+- Avoid single-point cache failure
+
+**Risk**
+
+- Stale data
