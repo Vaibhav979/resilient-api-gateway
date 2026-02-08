@@ -28,13 +28,18 @@ public class ApiController {
     private final RateLimiterService rateLimiter;
     private final DownStreamClient downstreamClient;
     private final Counter requestCounter;
+    private final Counter throttledCounter;
+    private final Counter rateLimitHitCounter;
 
     public ApiController(DataService dataService, RedisHealthChecker redisHealthChecker,
-            RateLimiterService rateLimiter, DownStreamClient downstreamClient, Counter requestCounter) {
+            RateLimiterService rateLimiter, DownStreamClient downstreamClient, Counter requestCounter,
+            Counter throttledCounter, Counter rateLimitHitCounter) {
         this.dataService = dataService;
         this.rateLimiter = rateLimiter;
         this.downstreamClient = downstreamClient;
         this.requestCounter = requestCounter;
+        this.throttledCounter = throttledCounter;
+        this.rateLimitHitCounter = rateLimitHitCounter;
     }
 
     @GetMapping("/data")
@@ -42,9 +47,10 @@ public class ApiController {
             @RequestParam(required = false) Long delayMs,
             @RequestParam(required = false) Boolean fail) {
         requestCounter.increment();
-
+        rateLimitHitCounter.increment();
         String clientIp = request.getRemoteAddr();
         if (!rateLimiter.isAllowed(clientIp)) {
+            throttledCounter.increment();
             throw new RateLimitExceededException("Rate limit exceeded. Please try again later.");
         }
 

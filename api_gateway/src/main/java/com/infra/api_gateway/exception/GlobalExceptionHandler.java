@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
 
         private final Counter errorCounter;
 
-        public GlobalExceptionHandler(Counter errorCounter) {
+        public GlobalExceptionHandler(Counter errorCounter, Counter rateLimitHitCounter) {
                 this.errorCounter = errorCounter;
         }
 

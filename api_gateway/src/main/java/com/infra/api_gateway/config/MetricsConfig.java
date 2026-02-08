@@ -24,4 +24,18 @@ public class MetricsConfig {
                 .baseUnit("errors")
                 .register(registry);
     }
+
+    @Bean
+    public Counter rateLimitHitCounter(MeterRegistry registry) {
+        return Counter.builder("gateway_ratelimit_hits")
+                .description("Requests evaluated by rate limiter")
+                .register(registry);
+    }
+
+    @Bean
+    public Counter throttledCounter(MeterRegistry registry) {
+        return Counter.builder("gateway_throttled_requests")
+                .description("Requests blocked by rate limiter (429)")
+                .register(registry);
+    }
 }
