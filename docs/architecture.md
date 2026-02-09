@@ -42,3 +42,9 @@ The API Gateway is containerized using Docker to ensure reproducible runtime env
 
 A mock downstream service is used to simulate latency and failure scenarios.
 It allows controlled injection of delays and errors to test gateway resilience under partial failure conditions.
+
+### Logging Strategy
+
+We use structured JSON logs with correlation IDs.
+Each request is traceable end-to-end using X-Request-Id.
+Errors include contextual metadata.

@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -13,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infra.api_gateway.entities.CachedResponse;
 import com.infra.api_gateway.repositories.CachedResponseRepository;
+import static com.infra.api_gateway.utils.StructuredLogger.kv;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
@@ -21,6 +24,8 @@ import io.github.resilience4j.retry.RetryRegistry;
 
 @Service
 public class DownStreamClient {
+
+    private static final Logger log = LoggerFactory.getLogger(DownStreamClient.class);
 
     private final RestTemplate restTemplate;
 
@@ -37,7 +42,7 @@ public class DownStreamClient {
     private final ObjectMapper objectMapper;
 
     private static final Duration CACHE_TTL = Duration.ofSeconds(30);
-    private static final Duration REDIS_TIMEOUT = Duration.ofMillis(500);
+    // private static final Duration REDIS_TIMEOUT = Duration.ofMillis(500);
 
     public DownStreamClient(
             RestTemplate restTemplate,
@@ -76,8 +81,13 @@ public class DownStreamClient {
         Map<String, Object> redisData = safeRedisGet(cacheKey);
 
         if (redisData != null) {
+            log.debug("Cache hit for key={}", cacheKey,
+                    kv("cacheKey", cacheKey));
             return redisData;
         }
+
+        log.debug("Cache miss for key={}", cacheKey,
+                kv("cacheKey", cacheKey));
 
         // -------------------------
         // 2. Try Database (with circuit breaker)
