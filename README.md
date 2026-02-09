@@ -28,3 +28,9 @@ docker-compose up --build
 - Simulated Redis failure
 - Simulated DB outage
 - Load testing
+
+## Reliability
+
+See detailed SLOs, alerts, and error budgets in:
+
+📄 docs/reliability.md
