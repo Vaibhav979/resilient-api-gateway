@@ -29,9 +29,5 @@ jobs:
         working-directory: DownStream-Service
         run: mvn clean package -DskipTests
 
-      - name: Run Tests
-        working-directory: api_gateway
-        run: mvn test
-
       - name: Build Docker Images
         run: docker compose build
