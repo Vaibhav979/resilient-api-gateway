@@ -21,15 +21,15 @@ jobs:
           java-version: "11"
 
       - name: Build API Gateway
-        working-directory: api-gateway
+        working-directory: api_gateway
         run: mvn clean package -DskipTests
 
       - name: Build Downstream Service
-        working-directory: downstream-service
+        working-directory: DownStream-Service
         run: mvn clean package -DskipTests
 
       - name: Run Tests
-        working-directory: api-gateway
+        working-directory: api_gateway
         run: mvn test
 
       - name: Build Docker Images
