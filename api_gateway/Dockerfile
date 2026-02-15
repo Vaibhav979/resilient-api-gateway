@@ -7,7 +7,7 @@ COPY settings.xml /root/.m2/settings.xml
 
 COPY pom.xml .
 
-RUN mvn dependency:go-offline -B -U -e
+RUN mvn dependency:go-offline -B -e
 
 COPY src ./src
 

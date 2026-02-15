@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.infra.api_gateway.entities.CachedResponse;
@@ -29,6 +30,9 @@ public class DownStreamClient {
 
     private final RestTemplate restTemplate;
 
+    @Value("${DOWNSTREAM_URL:http://localhost:8081/downstream/data}")
+    private String downstreamUrl;
+
     // Circuit Breakers
     private final CircuitBreaker downstreamBreaker;
     private final CircuitBreaker redisBreaker;
@@ -42,7 +46,13 @@ public class DownStreamClient {
     private final ObjectMapper objectMapper;
 
     private static final Duration CACHE_TTL = Duration.ofSeconds(30);
-    // private static final Duration REDIS_TIMEOUT = Duration.ofMillis(500);
+    // Maximum age for database cache - only return fresh data from DB
+    private static final Duration MAX_DB_CACHE_AGE = Duration.ofSeconds(30);
+
+    @jakarta.annotation.PostConstruct
+    public void init() {
+        log.info("DownStreamClient initialized with downstreamUrl: {}", downstreamUrl);
+    }
 
     public DownStreamClient(
             RestTemplate restTemplate,
@@ -90,19 +100,31 @@ public class DownStreamClient {
                 kv("cacheKey", cacheKey));
 
         // -------------------------
-        // 2. Try Database (with circuit breaker)
+        // 2. Try Database (with circuit breaker and age check)
         // -------------------------
 
         Optional<CachedResponse> dbData = safeDatabaseGet(cacheKey);
 
         if (dbData.isPresent()) {
+            CachedResponse cached = dbData.get();
 
-            Map<String, Object> result = deserialize(dbData.get().getJsonData());
+            // Check if cache is still fresh - don't return stale data
+            Instant cacheTime = cached.getUpdatedAt();
+            Instant now = Instant.now();
+            long cacheAgeSeconds = Duration.between(cacheTime, now).getSeconds();
 
-            // Refill Redis (best effort)
-            safeRedisSet(cacheKey, result);
+            if (cacheAgeSeconds > MAX_DB_CACHE_AGE.getSeconds()) {
+                log.info("Database cache too old ({}s), ignoring and calling downstream", cacheAgeSeconds);
+                // Don't return stale data - proceed to call downstream
+            } else {
+                log.debug("Returning fresh database cache (age: {}s)", cacheAgeSeconds);
+                Map<String, Object> result = deserialize(cached.getJsonData());
 
-            return result;
+                // Refill Redis (best effort)
+                safeRedisSet(cacheKey, result);
+
+                return result;
+            }
         }
 
         // -------------------------
@@ -224,6 +246,7 @@ public class DownStreamClient {
             return supplier.get();
 
         } catch (Exception e) {
+            log.error("Downstream service call failed: {}", e.getMessage(), e);
 
             // Ultimate fallback
             return Map.of(
@@ -242,7 +265,9 @@ public class DownStreamClient {
             Long delay,
             Boolean fail) {
 
-        String baseUrl = "http://downstream-service:8080/downstream/data";
+        String baseUrl = downstreamUrl;
+
+        log.info("Calling downstream service with URL: {}", baseUrl);
 
         StringBuilder url = new StringBuilder(baseUrl);
 

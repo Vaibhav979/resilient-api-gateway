@@ -1,21 +1,23 @@
 package com.infra.api_gateway.components;
 
 import jakarta.annotation.PostConstruct;
-import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Component
 public class RedisWarmup {
 
-    private final StringRedisTemplate redis;
-
-    public RedisWarmup(StringRedisTemplate redis) {
-        this.redis = redis;
-    }
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
     @PostConstruct
     public void warmup() {
-        // Force real TCP + Redis protocol handshake at startup
-        redis.opsForValue().set("__warmup", "ok");
+        try {
+            redisTemplate.opsForValue().set("health", "ok");
+            System.out.println("Redis warmup successful");
+        } catch (Exception e) {
+            System.out.println("Redis not ready, skipping warmup");
+        }
     }
 }
