@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/YOUR_USERNAME/resilient-system
+    repoURL: https://github.com/Vaibhav979/resilient-api-gateway
     targetRevision: HEAD
     path: k8s
   destination:
