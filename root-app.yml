@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://github.com/Vaibhav979/resilient-api-gateway
     targetRevision: HEAD
-    path: monitoring
+    path: .
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
