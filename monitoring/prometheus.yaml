@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: prometheus
+    targetRevision: 25.8.0
+    helm:
+      parameters:
+        - name: alertmanager.enabled
+          value: "false"
+        - name: pushgateway.enabled
+          value: "false"
+        - name: server.persistentVolume.enabled
+          value: "false"
+        - name: server.retention
+          value: "6h"
+        - name: server.resources.requests.memory
+          value: "512Mi"
+        - name: server.resources.limits.memory
+          value: "1Gi"
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
