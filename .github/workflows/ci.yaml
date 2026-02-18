@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,6 +25,9 @@ jobs:
           java-version: "17"
           cache: "maven"
 
+      - name: Set lowercase owner
+        run: echo "OWNER_LC=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Build API Gateway
         working-directory: api_gateway
         run: mvn clean package -DskipTests
@@ -29,5 +36,15 @@ jobs:
         working-directory: DownStream-Service
         run: mvn clean package -DskipTests
 
-      - name: Build Docker Images
-        run: docker compose build
+      - name: Login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build and Push API Gateway Image
+        run: |
+          docker build -t ghcr.io/${OWNER_LC}/api-gateway:latest ./api_gateway
+          docker push ghcr.io/${OWNER_LC}/api-gateway:latest
+
+      - name: Build and Push Downstream Image
+        run: |
+          docker build -t ghcr.io/${OWNER_LC}/downstream:latest ./DownStream-Service
+          docker push ghcr.io/${OWNER_LC}/downstream:latest

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: downstream
-          image: resilientsystem-downstream:latest
+          image: ghcr.io/vaibhav979/downstream:latest
           imagePullPolicy: Never
           ports:
             - containerPort: 8080

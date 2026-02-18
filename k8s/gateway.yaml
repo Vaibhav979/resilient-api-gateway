@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: resilientsystem-api-gateway:latest
+          image: ghcr.io/vaibhav979/api-gateway:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: SPRING_REDIS_HOST
