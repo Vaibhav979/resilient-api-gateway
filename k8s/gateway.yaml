@@ -15,7 +15,7 @@ spec:
       containers:
         - name: api-gateway
           image: ghcr.io/vaibhav979/api-gateway:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: SPRING_REDIS_HOST
               value: redis

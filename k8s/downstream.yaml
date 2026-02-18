@@ -15,7 +15,7 @@ spec:
       containers:
         - name: downstream
           image: ghcr.io/vaibhav979/downstream:latest
-          imagePullPolicy: Never
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
 ---
