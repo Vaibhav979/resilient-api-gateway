@@ -23,6 +23,8 @@ spec:
           value: "512Mi"
         - name: server.resources.limits.memory
           value: "1Gi"
+        - name: nodeExporter.enabled
+          value: "false"
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
