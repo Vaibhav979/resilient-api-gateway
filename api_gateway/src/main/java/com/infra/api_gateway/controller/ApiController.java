@@ -21,39 +21,74 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
-
 public class ApiController {
 
-    public final DataService dataService;
+    private final DataService dataService;
     private final RateLimiterService rateLimiter;
     private final DownStreamClient downstreamClient;
+
     private final Counter requestCounter;
     private final Counter throttledCounter;
-    private final Counter rateLimitHitCounter;
+    private final Counter allowedCounter;
+    private final Counter errorCounter;
 
-    public ApiController(DataService dataService, RedisHealthChecker redisHealthChecker,
-            RateLimiterService rateLimiter, DownStreamClient downstreamClient, Counter requestCounter,
-            Counter throttledCounter, Counter rateLimitHitCounter) {
+    public ApiController(
+            DataService dataService,
+            RateLimiterService rateLimiter,
+            DownStreamClient downstreamClient,
+            Counter requestCounter,
+            Counter throttledCounter,
+            Counter allowedCounter,
+            Counter errorCounter) {
+
         this.dataService = dataService;
         this.rateLimiter = rateLimiter;
         this.downstreamClient = downstreamClient;
         this.requestCounter = requestCounter;
         this.throttledCounter = throttledCounter;
-        this.rateLimitHitCounter = rateLimitHitCounter;
+        this.allowedCounter = allowedCounter;
+        this.errorCounter = errorCounter;
     }
 
     @GetMapping("/data")
-    public Map<String, Object> getData(HttpServletRequest request,
+    public Map<String, Object> getData(
+            HttpServletRequest request,
             @RequestParam(required = false) Long delayMs,
             @RequestParam(required = false) Boolean fail) {
+
         requestCounter.increment();
-        rateLimitHitCounter.increment();
-        String clientIp = request.getRemoteAddr();
+
+        String clientIp = extractClientIp(request);
+
         if (!rateLimiter.isAllowed(clientIp)) {
             throttledCounter.increment();
-            throw new RateLimitExceededException("Rate limit exceeded. Please try again later.");
+            throw new RateLimitExceededException(
+                    "Rate limit exceeded. Please try again later.");
         }
 
-        return downstreamClient.getData(delayMs, fail);
+        try {
+            Map<String, Object> response =
+                    downstreamClient.getData(delayMs, fail);
+
+            allowedCounter.increment();
+            return response;
+
+        } catch (Exception ex) {
+            errorCounter.increment();
+            throw ex;
+        }
+    }
+
+    private String extractClientIp(HttpServletRequest request) {
+        String forwarded = request.getHeader("X-Forwarded-For");
+
+        if (forwarded != null && !forwarded.isBlank()) {
+            String firstIp = forwarded.split(",")[0].trim();
+            if (!firstIp.isEmpty()) {
+                return firstIp;
+            }
+        }
+
+        return request.getRemoteAddr();
     }
 }
