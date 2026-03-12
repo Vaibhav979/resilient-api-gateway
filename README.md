@@ -5,6 +5,8 @@ The system simulates real-world service behavior under load, failures, and recov
 
 The goal was to design and operate a system that is not only functional but also resilient, observable, and deployable using cloud-native workflows.
 
+![System Architecture](docs/images/System-design-architecture-1.png)
+
 ---
 
 ## 🏗 Architecture
@@ -26,6 +28,8 @@ ArgoCD
 Kubernetes Cluster (k3s)
 ↓
 Services + Monitoring Stack
+
+![Detailed Arch](docs/images/System-design-architecture-2.png)
 
 ---
 
@@ -72,6 +76,48 @@ Java, Spring Boot, Redis, PostgreSQL, Docker, Resilience4j, Kubernetes, GitHub A
 
 ---
 
+## 🚀 How to Run
+
+### Prerequisites
+- Docker & Docker Compose
+- Maven 3.9+ (Java 17)
+- For K8s: k3s, kubectl, Helm 3+
+
+### 1. Local Development (Docker Compose) - Quick Start
+```bash
+git clone <your-repo>.git
+cd resilient-api-gateway
+docker compose up --build -d
+```
+
+**Ports**:
+| Service | Port |
+|---------|------|
+| Gateway | 8080 |
+| Downstream | 8081 |
+| Postgres | 5432 |
+| Redis | 6379 |
+
+Test: `curl localhost:8080/api/data`
+
+![CI Pipeline](docs/images/ci-pipeline.png)
+
+### 2. End-to-End Kubernetes + ArgoCD + Monitoring
+
+**k3s + ArgoCD Install & Bootstrap** (see full steps in README)
+
+![K8s Pods](docs/images/k8s-pods.png)
+
+![ArgoCD Healthy](docs/images/argocd-healthy.png)
+
+**Grafana Dashboards**:
+![Grafana 1](docs/images/Grafana-dashboard-1.png)
+![Grafana 2](docs/images/Grafana-dashboard2.png)
+
+Full K8s steps: port-forwards for Gateway (30080), Grafana (3000), Prometheus (9090).
+
+---
+
 ## What This Project Demonstrates
 
 - End-to-end system lifecycle
@@ -88,6 +134,5 @@ Java, Spring Boot, Redis, PostgreSQL, Docker, Resilience4j, Kubernetes, GitHub A
 
 ## Reliability
 
-See detailed SLOs, alerts, and error budgets in:
+📄 [docs/reliability.md](docs/reliability.md)
 
-📄 docs/reliability.md
