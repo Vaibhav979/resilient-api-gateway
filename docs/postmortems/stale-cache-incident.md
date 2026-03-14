@@ -1,7 +1,7 @@
 # Postmortem: Stale Cache Incident - API Gateway Downstream Service Failure
 
 **Date:** 2026-02-15  
-**Duration:** ~2 hours  
+**Incident Duration:** ~2 hours (investigation and debugging spanned ~3 days)  
 **Severity:** SEV-2 (Degraded Service behavior)
 **Status:** Resolved
 
